@@ -1,0 +1,88 @@
+import discord
+import os
+import wikipedia
+#from keep_alive import keep_alive
+
+client = discord.Client()
+
+
+@client.event
+async def on_ready():
+    print("Bot is ready")
+    print(client.user)
+    await client.change_presence(game=discord.Game(name="use !help"))
+
+@client.event
+async def on_message(message):
+    if message.author != client.user:
+      if message.content.endswith('!help'):
+        commands={}
+        commands['!help']='You just entered this command...'
+        commands['!wikiSum']='Gives Wikipedia summary of entered text'
+        commands['!wikiPic']='Gives Wikipedia picture of entered text'
+        commands['!coins or !coin']='Gives coin calcuator for Pokemon Go gyms'
+
+        msg=discord.Embed(title='Hitomi Bot Commands', description="Written by Day56#6042 also stan IZ*One",color=0xf4bf42)
+
+        for command,description in commands.items():
+            msg.add_field(name=command,value=description, inline=False)
+            
+        await client.send_message(message.channel, embed=msg)
+
+      if message.content.endswith('!wikiSum'):
+        await client.send_message(message.channel, 'Enter something for a Wikipedia summary of it! You have 20 seconds.')#prompts user to input information
+        toLookUp = await client.wait_for_message(timeout=20.0, author=message.author) #sets variable to user input
+        if toLookUp is None: #if user takes too long (15 seconds) returns error
+            await client.send_message(message.channel, "Sorry, you took too long.")
+            return
+        try: #takes user input and prints "4" lines of Wikipedia summary
+            await client.send_message(message.channel, "```{}```".format(wikipedia.summary(toLookUp.content,sentences=4)))
+        except wikipedia.exceptions.DisambiguationError as e: #Disambiguation error message
+            await client.send_message(message.channel, "```{}```".format(("Error: {0}".format(e))))
+            await client.send_message(message.channel,"Error: too many results, please search again with more details.")
+
+      if message.content.endswith('!wikiPic'):
+        await client.send_message(message.channel, 'Enter something for a Wikipedia picture of it! You have 20 seconds.')
+        toLookUpPic = await client.wait_for_message(timeout=20.0, author=message.author)
+        if toLookUpPic is None: #if user takes too long (15 seconds) returns error
+            await client.send_message(message.channel, "Sorry, you took too long.")
+            return
+        try:
+          picFind = wikipedia.page(toLookUpPic.content)
+          await client.send_message(message.channel,picFind.images[0])
+
+        except wikipedia.exceptions.DisambiguationError as e:
+            await client.send_message(message.channel, "```{}```".format(("Error: {0}".format(e))))
+            await client.send_message(message.channel,"Error: too many results, please search again with more details.")
+
+      if message.content.startswith('!coins') or message.content.startswith('!coin'):
+        def coinCheck(m):
+            return m.content.isdigit()
+
+        await client.send_message(message.channel,'How many hours has the Pokemon been in the gym?')
+        coinsHour = await client.wait_for_message(timeout=15.0, author=message.author,check=coinCheck)
+
+        if coinsHour is None:
+            await client.send_message(message.channel, "Sorry, you took too long.")
+            return
+
+        await client.send_message(message.channel,'How many minutes has the Pokemon been in the gym?')
+        coinsMin = await client.wait_for_message(timeout=15.0, author=message.author,check=coinCheck)
+
+        if coinsMin is None: #if user takes too long (15 seconds) returns error
+            await client.send_message(message.channel, "Sorry, you took too long.")
+            return
+        #THROWS A STUPID ERROR CUZ MESSAGE TYPE CANT BE INT TYPE
+        timeInGymTotal = (int(coinsHour.content)*60)+(int(coinsMin.content))
+        coinsGained = timeInGymTotal/10
+
+        await client.send_message(message.channel, "Total coins earned: {}" .format(coinsGained))
+        
+
+        
+
+
+#KEEP AS LAST 2 LINES OF CODE
+#keep_alive()
+token = os.environ.get("DISCORD_BOT_SECRET")
+client.run(token)
