@@ -72,7 +72,6 @@ async def on_message(message):
         if coinsMin is None: #if user takes too long (15 seconds) returns error
             await client.send_message(message.channel, "Sorry, you took too long.")
             return
-        #THROWS A STUPID ERROR CUZ MESSAGE TYPE CANT BE INT TYPE
         timeInGymTotal = (int(coinsHour.content)*60)+(int(coinsMin.content))
         coinsGained = timeInGymTotal/10
 
