@@ -22,7 +22,7 @@ async def on_message(message):
         commands['!wikiPic']='Gives Wikipedia picture of entered text'
         commands['!coins or !coin']='Gives coin calcuator for Pokemon Go gyms'
 
-        msg=discord.Embed(title='Hitomi Bot Commands', description="Written by Day56#6042 also stan IZ*One",color=0xf4bf42)
+        msg=discord.Embed(title='Hitomi Bot Commands', description="Written by Day56#6042",color=0xf4bf42)
 
         for command,description in commands.items():
             msg.add_field(name=command,value=description, inline=False)
